@@ -9,13 +9,11 @@ print('#include "kernel/syscall.h"\n')
 
 def entry(name):
     print(
-        f"""
-.global {name}
-{name}:
-    li a7, SYS_{name}
-    ecall
-    ret
-"""
+        f".global {name}\n"
+        f"{name}:\n"
+        f"    li a7, SYS_{name}\n"
+        f"    ecall\n"
+        f"    ret\n"
     )
 
 
@@ -40,3 +38,7 @@ entry("getpid")
 entry("sbrk")
 entry("sleep")
 entry("uptime")
+entry("custom_print")
+entry("custom_print_int")
+entry("custom_print_pid")
+entry("custom_print_str")

@@ -20,3 +20,9 @@
 #define SYS_link   19
 #define SYS_mkdir  20
 #define SYS_close  21
+
+// Custum system calls
+#define SYS_custom_print     22
+#define SYS_custom_print_int 23
+#define SYS_custom_print_pid 24
+#define SYS_custom_print_str 25

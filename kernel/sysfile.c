@@ -483,3 +483,56 @@ sys_pipe(void)
   }
   return 0;
 }
+
+// Custom system calls
+uint64
+sys_custom_print(void)
+{
+  printf("Hello system call!\n");
+  return 0;
+}
+uint64
+sys_custom_print_int(void)
+{
+  int arg, ret;
+  ret = argint(0, &arg);
+  if(ret != 0) {
+    return -1;
+  }
+  printf("number = %d\n", arg);
+  return 0;
+}
+uint64
+sys_custom_print_pid(void)
+{
+  int pid = 0;
+  struct proc *p = myproc();
+  pid = p->pid;
+
+  printf("pid = %d\n", pid);
+  return 0;
+}
+uint64
+sys_custom_print_str(void)
+{
+  int ret, len;
+  uint64 addr;
+
+  struct proc *p = myproc();
+
+  ret = argaddr(0, &addr);
+  if(ret != 0)
+    return -1;
+  ret = argint(1, &len);
+  if(ret != 0)
+    return -1;
+
+  printf("string (len=%d) =\n", len);
+  for(int i = 0; i < len; i++) {
+    char ch;
+    if(copyin(p->pagetable, &ch, addr + i, 1) == -1)
+      break;
+    consputc(ch);
+  }
+  return 0;
+}

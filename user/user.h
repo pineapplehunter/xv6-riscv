@@ -40,3 +40,9 @@ void free(void *);
 int atoi(const char *);
 int memcmp(const void *, const void *, uint);
 void *memcpy(void *, const void *, uint);
+
+// custom system calls
+int custom_print(void);
+int custom_print_int(int);
+int custom_print_pid();
+int custom_print_str(const char *, int);

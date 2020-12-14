@@ -104,6 +104,11 @@ extern uint64 sys_unlink(void);
 extern uint64 sys_wait(void);
 extern uint64 sys_write(void);
 extern uint64 sys_uptime(void);
+// Custom
+extern uint64 sys_custom_print(void);
+extern uint64 sys_custom_print_int(void);
+extern uint64 sys_custom_print_pid(void);
+extern uint64 sys_custom_print_str(void);
 
 static uint64 (*syscalls[])(void) = {
   [SYS_fork] sys_fork,
@@ -127,6 +132,12 @@ static uint64 (*syscalls[])(void) = {
   [SYS_link] sys_link,
   [SYS_mkdir] sys_mkdir,
   [SYS_close] sys_close,
+
+  // Custom
+  [SYS_custom_print] sys_custom_print,
+  [SYS_custom_print_int] sys_custom_print_int,
+  [SYS_custom_print_pid] sys_custom_print_pid,
+  [SYS_custom_print_str] sys_custom_print_str,
 };
 
 void
