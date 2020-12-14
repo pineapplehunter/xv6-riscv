@@ -109,6 +109,7 @@ extern uint64 sys_custom_print(void);
 extern uint64 sys_custom_print_int(void);
 extern uint64 sys_custom_print_pid(void);
 extern uint64 sys_custom_print_str(void);
+extern uint64 sys_clone(void);
 
 static uint64 (*syscalls[])(void) = {
   [SYS_fork] sys_fork,
@@ -138,6 +139,7 @@ static uint64 (*syscalls[])(void) = {
   [SYS_custom_print_int] sys_custom_print_int,
   [SYS_custom_print_pid] sys_custom_print_pid,
   [SYS_custom_print_str] sys_custom_print_str,
+  [SYS_clone] sys_clone,
 };
 
 void

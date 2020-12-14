@@ -318,6 +318,73 @@ fork(void)
   return pid;
 }
 
+// Create a new process, using the same pagemapping as the parent.
+
+int
+clone(int (*fn)(void *), void *args)
+{
+  int i, pid;
+  struct proc *np;
+  struct proc *p = myproc();
+
+  // Allocate process.
+  if((np = allocproc()) == 0) {
+    return -1;
+  }
+
+  uint64 newsz;
+  p->sz = PGROUNDUP(p->sz);
+  if((newsz = uvmalloc(p->pagetable, p->sz, p->sz + 2 * PGSIZE)) == 0) {
+    freeproc(np);
+    release(&np->lock);
+    return -1;
+  }
+  p->sz = newsz;
+  uvmclear(p->pagetable, p->sz - 2 * PGSIZE);
+
+  // Copy user memory from parent to child.
+  if(uvmlinksame(p->pagetable, np->pagetable, p->sz) < 0) {
+    freeproc(np);
+    release(&np->lock);
+    return -1;
+  }
+
+  uint64 sp = p->sz;
+  sp -= sp % 16;
+  np->sz = p->sz;
+
+  // copy saved user registers.
+  *(np->trapframe) = *(p->trapframe);
+
+  // Cause fork to return 0 in the child.
+  np->trapframe->a0 = (uint64)args;
+  np->trapframe->sp = sp;
+  np->trapframe->epc = (uint64)fn;
+
+  // increment reference counts on open file descriptors.
+  for(i = 0; i < NOFILE; i++)
+    if(p->ofile[i])
+      np->ofile[i] = filedup(p->ofile[i]);
+  np->cwd = idup(p->cwd);
+
+  safestrcpy(np->name, p->name, sizeof(p->name));
+
+  pid = np->pid;
+
+  release(&np->lock);
+
+  acquire(&wait_lock);
+  np->parent = p;
+  release(&wait_lock);
+
+  acquire(&np->lock);
+  np->state = RUNNABLE;
+  release(&np->lock);
+
+  np->threadid = p->pid;
+
+  return pid;
+}
 // Pass p's abandoned children to init.
 // Caller must hold wait_lock.
 void
@@ -357,6 +424,13 @@ exit(int status)
   iput(p->cwd);
   end_op();
   p->cwd = 0;
+
+  acquire(&p->lock);
+  if(p->threadid != 0) {
+    uvmunmap(p->pagetable, 0, p->sz / PGSIZE, 0);
+    p->sz = 0;
+  }
+  release(&p->lock);
 
   acquire(&wait_lock);
 

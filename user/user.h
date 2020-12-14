@@ -46,3 +46,4 @@ int custom_print(void);
 int custom_print_int(int);
 int custom_print_pid();
 int custom_print_str(const char *, int);
+int clone(int (*)(void *), void *);

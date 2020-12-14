@@ -30,6 +30,17 @@ sys_fork(void)
 }
 
 uint64
+sys_clone(void)
+{
+  uint64 fn, arg;
+  if(argaddr(0, &fn) < 0)
+    return -1;
+  if(argaddr(1, &arg) < 0)
+    return -1;
+  return clone((int (*)(void *))fn, (void *)arg);
+}
+
+uint64
 sys_wait(void)
 {
   uint64 p;

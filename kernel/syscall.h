@@ -26,3 +26,4 @@
 #define SYS_custom_print_int 23
 #define SYS_custom_print_pid 24
 #define SYS_custom_print_str 25
+#define SYS_clone            26
