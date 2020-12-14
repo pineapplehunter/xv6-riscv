@@ -135,6 +135,7 @@ UPROGS=\
 	$U/_hello\
 	$U/_custom_syscall\
 	$U/_clonetest\
+	$U/_clonesum\
 
 fs.img: mkfs/mkfs README $(UPROGS)
 	mkfs/mkfs fs.img README $(UPROGS)
