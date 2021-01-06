@@ -322,7 +322,7 @@ fork(void)
 // Create a new process, using the same pagemapping as the parent.
 
 int
-clone(int (*fn)(void *), void *args)
+clone(int (*fn)(void *), void *arg)
 {
   int i, pid;
   struct proc *np;
@@ -343,22 +343,18 @@ clone(int (*fn)(void *), void *args)
   p->sz = newsz;
   uvmclear(p->pagetable, p->sz - 2 * PGSIZE);
 
-  // Copy user memory from parent to child.
-  if(uvmlinksame(p->pagetable, np->pagetable, p->sz) < 0) {
-    freeproc(np);
-    release(&np->lock);
-    return -1;
-  }
+  np->pagetable = p->pagetable;
+
+  np->sz = p->sz;
 
   uint64 sp = p->sz;
   sp -= sp % 16;
-  np->sz = p->sz;
 
   // copy saved user registers.
   *(np->trapframe) = *(p->trapframe);
 
   // Cause fork to return 0 in the child.
-  np->trapframe->a0 = (uint64)args;
+  np->trapframe->a0 = (uint64)arg;
   np->trapframe->sp = sp;
   np->trapframe->epc = (uint64)fn;
 
@@ -371,6 +367,7 @@ clone(int (*fn)(void *), void *args)
   safestrcpy(np->name, p->name, sizeof(p->name));
 
   pid = np->pid;
+  np->threadid = p->pid;
 
   release(&np->lock);
 
@@ -382,7 +379,8 @@ clone(int (*fn)(void *), void *args)
   np->state = RUNNABLE;
   release(&np->lock);
 
-  np->threadid = p->pid;
+  for(long i = 1; i < 100000000; i++)
+    ;
 
   return pid;
 }
